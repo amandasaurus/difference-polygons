@@ -80,16 +80,17 @@ def do_difference(filename_a, files_to_remove, output_filename, min_area):
         for geom in output_geoms:
             output_fp.write({'properties': {}, 'geometry': mapping(geom)})
 
-def main(argv):
+def main(argv=None):
+    argv = argv or sys.argv[1:]
     parser = argparse.ArgumentParser()
     parser.add_argument("-l", "--land")
     parser.add_argument("-r", "--remove", action="append")
     parser.add_argument("-a", "--min-area", default=None, required=False, type=float)
     parser.add_argument("-o", "--output")
-    parser.add_argument("-q", "--quiet", default=False, action="store_true")
+    #parser.add_argument("-q", "--quiet", default=False, action="store_true")
 
     args = parser.parse_args(argv)
     do_difference(args.land, args.remove, args.output, args.min_area)
 
 if __name__ == '__main__':
-    main(sys.argv[1:])
+    main()
