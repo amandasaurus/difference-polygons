@@ -6,6 +6,22 @@ from rtree import index
 def is_multi(geom):
     return geom.geom_type.startswith("Multi") or geom.geom_type == 'GeometryCollection'
 
+
+# todo add split all multis into singles func
+def split_out_all_multis(geoms):
+    results = []
+    for geom in geoms:
+        if geom.geom_type == 'Polygon':
+            results.append(geom)
+        elif geom.geom_type == 'MultiPolygon':
+            results.extend(geom.geoms)
+        elif geom.geom_type == 'GeometryCollection':
+            results.extend(split_out_all_multis(geom.geoms))
+        else:
+            raise NotImplementedError(geom.geom_type)
+
+    return results
+
 def remove_zero_areas(geom):
     result = []
     if not is_multi(geom):
@@ -43,11 +59,19 @@ def do_difference(filename_a, filename_b, output_filename):
         output_geoms.append(new_geom)
     print "\n"
 
+    output_geoms = split_out_all_multis(output_geoms)
+
+    print "Removing empties"
+    print "There are {:,} geoms".format(len(output_geoms))
+    output_geoms = [x for x in output_geoms if x.area > 1e-8]
+    print "There are {:,} geoms".format(len(output_geoms))
+
     print "Merging all geoms together..."
     output_geom = shapely.ops.cascaded_union(output_geoms)
 
     # split into companent shapes
-    output_geoms = output_geom.geoms
+    output_geoms = split_out_all_multis(output_geom)
+    
 
     print "Writing output"
     with fiona.open(output_filename, 'w', 'ESRI Shapefile', crs=output_crs, schema={'geometry': 'Polygon', 'properties': {}}) as output_fp:
