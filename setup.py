@@ -9,7 +9,7 @@ setup(
     author_email="rory@technomancy.org",
     packages=['difference_polygons'],
     platforms=['any',],
-    requires=[
+    install_requires=[
         "fiona",
         "shapely"
     ],
