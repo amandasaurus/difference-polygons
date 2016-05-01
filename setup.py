@@ -11,7 +11,8 @@ setup(
     platforms=['any',],
     install_requires=[
         "fiona",
-        "shapely"
+        "shapely",
+        "rtree",
     ],
     entry_points={
         'console_scripts': [
